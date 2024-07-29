@@ -1,5 +1,8 @@
 on: [push]
 
+env:
+  who-to-greets: ${{ github.greeting }}
+
 jobs:
   hello_world_job:
     runs-on: ubuntu-latest
@@ -9,7 +12,7 @@ jobs:
       - id: foo
         uses: rfrymire/hello-world-composite-action@v2
         with:
-          who-to-greet: 'Rob Frymire'
+          who-to-greet: ${{ who-to-greets }}
       - run: echo random-number "$RANDOM_NUMBER"
         shell: bash
         env:
