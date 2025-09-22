@@ -1,0 +1,53 @@
+name: Vault Read (OIDC/JWT)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # required to request OIDC token
+  contents: read    # typical default
+
+jobs:
+  read-secrets:
+    runs-on: rfrymire
+    env:
+      VAULT_ADDR: ${{ vars.VAULT_ADDR }} # e.g. https://vault.example.com:8200
+    steps:
+      - name: Debug OIDC claims
+        shell: bash
+        env:
+          AUDIENCE: '${{ github.server_url }}/${{ github.repository }}'
+        run: |
+          TOKEN_JSON=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$AUDIENCE")
+          ID_TOKEN=$(echo "$TOKEN_JSON" | jq -r .value)
+          echo "$ID_TOKEN" | awk -F. '{print $2}' | base64 -d 2>/dev/null | jq -r
+
+      - name: Retrieve secrets from Vault
+        id: vault
+        uses: hashicorp/vault-action@v3
+        with:
+          url: ${{ env.VAULT_ADDR }}
+          method: jwt
+          role: rfrymire-defaulttestrepo
+          # If you use a private CA, add:
+          # caCertificate: ${{ secrets.VAULT_CA_CERT }}
+          # Map KV v2 secrets -> env vars (note /data/ in the path)
+          secrets: |
+            secret/data/Database token1 | TOKEN1
+          # Useful for verification/revocation steps below:
+          exportToken: true
+
+      - name: Verify secrets (without printing values)
+        shell: bash
+        run: |
+          test -n "${TOKEN1}" && echo "TOKEN1 ${TOKEN1}"
+          
+          # Show key names exist in Vault (not the values)
+          curl -sS -H "X-Vault-Token: ${VAULT_TOKEN}" \
+            "${VAULT_ADDR}/v1/secret/data/Database" | jq -r '.data.data | keys'
+
+      - name: Revoke short-lived Vault token (best practice)
+        if: always()
+        run: |
+          curl -sS -X POST -H "X-Vault-Token: ${VAULT_TOKEN}" \
+            "${VAULT_ADDR}/v1/auth/token/revoke-self"
