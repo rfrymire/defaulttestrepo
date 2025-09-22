@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   read-secrets:
-    runs-on: self-hosted
+    runs-on: rfrymire
     env:
       VAULT_ADDR: ${{ vars.VAULT_ADDR }} # e.g. https://vault.example.com:8200
     steps:
