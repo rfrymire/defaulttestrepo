@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   read-secrets:
-    runs-on: rfrymire
+    runs-on: ubuntu-latest
     env:
       VAULT_ADDR: ${{ vars.VAULT_ADDR }} # e.g. https://vault.example.com:8200
     steps:
