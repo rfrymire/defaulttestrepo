@@ -1,4 +1,4 @@
-name: Vault Read (OIDC/JWT)
+name: Vault Read2 (OIDC/JWT)
 
 on:
   workflow_dispatch:
