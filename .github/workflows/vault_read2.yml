@@ -33,7 +33,7 @@ jobs:
           # caCertificate: ${{ secrets.VAULT_CA_CERT }}
           # Map KV v2 secrets -> env vars (note /data/ in the path)
           secrets: |
-            secret/data/Database token1 | TOKEN1
+            secret/data/Database test | TOKEN1
           # Useful for verification/revocation steps below:
           exportToken: true
 
