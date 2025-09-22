@@ -33,19 +33,22 @@ jobs:
           # caCertificate: ${{ secrets.VAULT_CA_CERT }}
           # Map KV v2 secrets -> env vars (note /data/ in the path)
           secrets: |
-            secrets/data/test token1 | TOKEN1 ;
-            secrets/data/test token2 | TOKEN2
+            # secrets/data/test token1 | TOKEN1 ;
+            # secrets/data/test token2 | TOKEN2
+            secret/data/Database test | TOKEN
           # Useful for verification/revocation steps below:
           exportToken: true
 
       - name: Verify secrets (without printing values)
         shell: bash
         run: |
-          test -n "${TOKEN1}" && echo "TOKEN1 present"
-          test -n "${TOKEN2}" && echo "TOKEN2 present"
+          # test -n "${TOKEN1}" && echo "TOKEN1 present"
+          # test -n "${TOKEN2}" && echo "TOKEN2 present"
+          test -n "${TOKEN}" && echo ${TOKEN}
           # Show key names exist in Vault (not the values)
           curl -sS -H "X-Vault-Token: ${VAULT_TOKEN}" \
-            "${VAULT_ADDR}/v1/secrets/data/test" | jq -r '.data.data | keys'
+            "${VAULT_ADDR}/v1/secret/data/Database" | jq -r '.data.data | keys'
+            # "${VAULT_ADDR}/v1/secrets/data/test" | jq -r '.data.data | keys'
 
       - name: Revoke short-lived Vault token (best practice)
         if: always()
