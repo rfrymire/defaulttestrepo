@@ -41,6 +41,16 @@ jobs:
         shell: bash
         run: |
           test -n "${TOKEN1}" && echo "TOKEN1 ${TOKEN1}"
+
+          - name: Verify secret values
+            run: |
+              if [ "$TOKEN1" = "thisisasecret" ]; then
+                echo "TOKEN1 matches expected"
+              else
+                echo "TOKEN1 does not match expected"
+                exit 1
+              fi
+
           
           # Show key names exist in Vault (not the values)
           curl -sS -H "X-Vault-Token: ${VAULT_TOKEN}" \
